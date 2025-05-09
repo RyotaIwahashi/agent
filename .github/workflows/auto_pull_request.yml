@@ -1,12 +1,18 @@
 on:
   push:
-    branches: [develop]
+    branches:
+      - develop
+
+name: release-please
 jobs:
-  release:
+  release-please:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: google-github-actions/release-please-action@v4
+      - uses: actions/create-github-app-token@v1
+        id: app-token
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          target-branch: main
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+      - uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
