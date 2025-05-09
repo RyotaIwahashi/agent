@@ -1,0 +1,37 @@
+name: Auto Release PR Body
+
+on:
+  pull_requests:
+    - main
+  types: [opened, synchronize, reopened]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  auto_update_pull_requests:
+    runs_on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth:0
+
+      - name: Set current datetime as env variable
+        env: 'Asia/Tokyo'
+        run: |
+          echo "current_date=$(date + '%Y-%m-%d')" >> $GITHUB_ENV
+ 
+      - name: Update Pull Request Title
+        run: |
+          gh pr edit ${{ github.event.pull_requests.number }} \
+          --title "Release ${current_date}"
+
+      - name: Update Pull Request Body
+        uses: technote-space/pr-commit-body-action@v1.7.3
+        with:
+          MAX_COMMITS: '10'
+          TITLE: "### Changes"
